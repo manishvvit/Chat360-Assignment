@@ -1,7 +1,6 @@
 import json
 import random
 from datetime import datetime, timedelta
-import requests
 import sys
 from tqdm import tqdm
 import uuid
@@ -61,12 +60,13 @@ def get_random_timestamp():
 
 def get_random_level():
     log_levels = ['info', 'warning', 'error']
-    return random.choice(log_levels)
+    level = random.choice(log_levels)
+    return level
 
 def get_id(n=6):
     return str(uuid.uuid4())[:n]
 
-def generate_log():
+def generate_random_log():
     metadata = {
         'parentResourceId': get_id()
     }
@@ -82,25 +82,15 @@ def generate_log():
     }
     return log
 
-def send_logs_to_server(logs):
-    url = 'http://localhost:3000/log/ingest'
-    headers = {'Content-Type': 'application/json'}
-    data = json.dumps(logs)
-    response = requests.post(url, headers=headers, data=data)
-    if response.status_code == 200:
-        print('Logs sent successfully')
-    else:
-        print(f'Error sending logs: {response.status_code}')
-
-def main():
-    if len(sys.argv) != 2:
-        print("Usage: python log_generator.py <num_logs>")
-        sys.exit(1)
-
-    num_logs = int(sys.argv[1])
-    logs = [generate_log() for _ in tqdm(range(num_logs), desc="Generating Logs")]
-
-    send_logs_to_server(logs)
+def generate_logs(n=10):
+    logs = []
+    for _ in tqdm(range(n), desc='Generating Logs', unit='log'):
+        logs.append(generate_random_log())
+    return logs
 
 if __name__ == "__main__":
-    main()
+    num_logs = 10
+    if len(sys.argv) > 1:
+        num_logs = int(sys.argv[1])
+    logs = generate_logs(num_logs)
+    print(json.dumps(logs, indent=2))
