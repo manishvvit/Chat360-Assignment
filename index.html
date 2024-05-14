@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Ingestor</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <h1>Log Ingestor</h1>
+    <form id="log-form">
+        <label for="num_logs">Number of Logs:</label>
+        <input type="number" id="num_logs" name="num_logs" required>
+        <button type="submit">Generate and Send Logs</button>
+    </form>
+    
+    <h2>Search Logs</h2>
+    <form id="search-form">
+        <label for="level">Level:</label>
+        <input type="text" id="level" name="level">
+        <label for="message">Message Pattern:</label>
+        <input type="text" id="message" name="message">
+        <label for="start_date">Start Date:</label>
+        <input type="datetime-local" id="start_date" name="start_date">
+        <label for="end_date">End Date:</label>
+        <input type="datetime-local" id="end_date" name="end_date">
+        <button type="submit">Search</button>
+    </form>
+    
+    <div id="results"></div>
+    
+    <script>
+        document.getElementById('log-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const num_logs = document.getElementById('num_logs').value;
+            fetch('/generate_logs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ num_logs })
+            }).then(response => response.json()).then(data => {
+                document.getElementById('results').innerText = JSON.stringify(data, null, 2);
+            });
+        });
+
+        document.getElementById('search-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const params = new URLSearchParams(new FormData(e.target));
+            fetch('/search_logs?' + params.toString()).then(response => response.json()).then(data => {
+                document.getElementById('results').innerText = JSON.stringify(data, null, 2);
+            });
+        });
+    </script>
+</body>
+</html>
